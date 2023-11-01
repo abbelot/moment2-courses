@@ -68,7 +68,13 @@
                     if (e.target.classList.contains('delete-btn')) {
                         // Get id from data-id
                         const id = e.target.getAttribute('data-id');
-                        const response = await fetch(`http://localhost:3000/courses/${id}`, { method: 'DELETE' });
+                        const response = await fetch(`http://localhost:3000/courses/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                "Accept": "application/json",
+                                "Content-type": "application/json"
+                            }
+                        });
 
                         // Remove element from parent element if response is ok
                         if (response.ok) {
