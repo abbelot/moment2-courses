@@ -33,40 +33,54 @@
     <script>
         // Execute function when window finishes loading
         window.onload = async () => {
-            // Make GET request to the server to get course data
-            const response = await fetch("http://localhost:3000/courses");
-            const courses = await response.json();
+            try {
+                // Make GET request to the server to get course data
+                const response = await fetch("http://localhost:3000/courses");
+                const courses = await response.json();
 
-            // Table body element
-            const tableBody = document.querySelector('tbody');
+                // Table body element
+                const tableBody = document.querySelector('tbody');
 
-            // Create a new table row for each course
-            courses.forEach(course => {
-                tableBody.innerHTML += `<tr>
-                    <td>${course._id}</td>
-                    <td>${course.courseId}</td>
-                    <td>${course.courseName}</td>
-                    <td>${course.coursePeriod}</td>
-                    <td><span data-id="${course._id}" class="fa-solid fa-trash-can fa-lg delete-btn"></span></td>
-                </tr>`;
-            });
+                // Create a new table row for each course and add delete icon
+                courses.forEach(course => {
+                    const row = document.createElement("tr");
+                    ["_id", "courseId", "courseName", "coursePeriod"].forEach(key => {
+                        const cell = document.createElement("td");
+                        cell.textContent = course[key];
+                        row.appendChild(cell);
+                    });
 
-            // Make DELETE request when clicking delete button
-            tableBody.addEventListener('click', async (e) => {
-                // Check if target has correct class
-                if (e.target.classList.contains('delete-btn')) {
-                    // Get id from data-id
-                    const id = e.target.getAttribute('data-id');
-                    const response = await fetch(`http://localhost:3000/courses/${id}`, { method: 'DELETE' });
+                    // Append elements to row and table body
+                    const deleteCell = document.createElement("td");
+                    const deleteIcon = document.createElement("span");
+                    deleteIcon.classList.add("fa-solid", "fa-trash-can", "fa-lg", "delete-btn");
+                    deleteIcon.setAttribute("data-id", course._id);
+                    deleteCell.appendChild(deleteIcon);
+                    row.appendChild(deleteCell);
 
-                    // Remove element from parent element if response is ok
-                    if (response.ok) {
-                        e.target.parentElement.parentElement.remove();
-                    } else {
-                        console.error("Failed to delete course");
+                    tableBody.appendChild(row);
+                });
+
+
+                // Make DELETE request when clicking delete button
+                tableBody.addEventListener('click', async (e) => {
+                    // Check if target has correct class
+                    if (e.target.classList.contains('delete-btn')) {
+                        // Get id from data-id
+                        const id = e.target.getAttribute('data-id');
+                        const response = await fetch(`http://localhost:3000/courses/${id}`, { method: 'DELETE' });
+
+                        // Remove element from parent element if response is ok
+                        if (response.ok) {
+                            e.target.parentElement.parentElement.remove();
+                        } else {
+                            console.error("Failed to delete course");
+                        }
                     }
-                }
-            })
+                })
+            } catch (err) {
+                console.error("Failed to load courses ", err);
+            }
         }
     </script>
 </body>
